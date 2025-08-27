@@ -1,10 +1,10 @@
 import * as THREE from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { FlyControls } from 'three/addons/controls/FlyControls.js';
 import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
 
 // Scene
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x87ceeb); // Sky blue
+scene.background = new THREE.Color(0x87ceeb);
 
 // Camera
 const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 2000);
@@ -20,14 +20,24 @@ const labelRenderer = new CSS2DRenderer();
 labelRenderer.setSize(window.innerWidth, window.innerHeight);
 labelRenderer.domElement.style.position = 'absolute';
 labelRenderer.domElement.style.top = '0px';
-labelRenderer.domElement.style.pointerEvents = 'none'; // <-- allows orbit controls to work
+labelRenderer.domElement.style.pointerEvents = 'none';
+labelRenderer.domElement.style.fontFamily = 'Arial'
 document.body.appendChild(labelRenderer.domElement);
 
-// Controls
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
+// ---------------------------
+// Fly Controls (fast)
+// ---------------------------
+const flyControls = new FlyControls(camera, renderer.domElement);
+flyControls.movementSpeed = 800; // faster movement
+flyControls.rollSpeed = Math.PI / 8; // rotation speed
+flyControls.dragToLook = true;
+flyControls.autoForward = false;
 
+const clock = new THREE.Clock();
+
+// ---------------------------
 // Lights
+// ---------------------------
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
 scene.add(ambientLight);
 
@@ -62,6 +72,8 @@ const earnData = [
     { project: "Project D", amount: 80, color: "#ffa500" }
 ];
 
+const targetAmount = 100000; // £100k goal
+
 // Cuboids + labels
 earnData.forEach((cube, i) => {
     const geometry = new THREE.BoxGeometry(40, cube.amount, 40);
@@ -84,7 +96,7 @@ earnData.forEach((cube, i) => {
     mesh.add(label);
 });
 
-// Billboards
+// Side Billboards
 function addBillboard(x, y, z, text) {
     const geometry = new THREE.BoxGeometry(60, 100, 5);
     const material = new THREE.MeshStandardMaterial({ color: 0xcccccc });
@@ -110,10 +122,66 @@ function addBillboard(x, y, z, text) {
 addBillboard(-200, 50, 0, "Your business could be here");
 addBillboard(200, 50, 0, "Your business could be here");
 
-// Render loop
+// Sky Billboard for Earnings Progress
+const progressCanvas = document.createElement('canvas');
+progressCanvas.width = 1024;
+progressCanvas.height = 1024;
+const progressCtx = progressCanvas.getContext('2d');
+const progressTexture = new THREE.CanvasTexture(progressCanvas);
+
+const progressMaterial = new THREE.MeshBasicMaterial({ map: progressTexture, side: THREE.DoubleSide, transparent: true });
+const progressBillboard = new THREE.Mesh(new THREE.PlaneGeometry(80, 80), progressMaterial);
+progressBillboard.position.set(0, 180, -200);
+scene.add(progressBillboard);
+
+function drawProgress() {
+    const current = earnData.reduce((sum, d) => sum + d.amount, 0);
+    const percent = Math.min(current / targetAmount, 1);
+
+    progressCtx.clearRect(0, 0, progressCanvas.width, progressCanvas.height);
+
+    progressCtx.fillStyle = '#222';
+    progressCtx.fillRect(0, 0, progressCanvas.width, progressCanvas.height);
+
+    progressCtx.fillStyle = 'white';
+    progressCtx.font = 'bold 80px Arial';
+    progressCtx.textAlign = 'center';
+    progressCtx.fillText('Earnings Progress', progressCanvas.width / 2, 150);
+
+    progressCtx.fillStyle = 'lightgreen';
+    progressCtx.font = 'bold 100px Arial';
+    progressCtx.fillText(`£${current.toLocaleString()} / £${targetAmount.toLocaleString()}`, progressCanvas.width / 2, 300);
+
+    const centerX = progressCanvas.width / 2;
+    const centerY = 800;
+    const radius = 200;
+
+    progressCtx.beginPath();
+    progressCtx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+    progressCtx.strokeStyle = '#555';
+    progressCtx.lineWidth = 40;
+    progressCtx.stroke();
+
+    progressCtx.beginPath();
+    progressCtx.arc(centerX, centerY, radius, -Math.PI / 2, (-Math.PI / 2) + (2 * Math.PI * percent));
+    progressCtx.strokeStyle = '#4caf50';
+    progressCtx.lineWidth = 40;
+    progressCtx.stroke();
+
+    progressCtx.fillStyle = 'yellow';
+    progressCtx.font = 'bold 80px Arial';
+    progressCtx.fillText(`${Math.round(percent * 100)}%`, centerX, centerY + 30);
+
+    progressTexture.needsUpdate = true;
+}
+
+drawProgress();
+
+// Animate Loop
 function animate() {
     requestAnimationFrame(animate);
-    controls.update();
+    const delta = clock.getDelta();
+    flyControls.update(delta);
     renderer.render(scene, camera);
     labelRenderer.render(scene, camera);
 }

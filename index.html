@@ -19,6 +19,82 @@
     </script>
 </head>
 <body>
+<div id="corner-menu" style="
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background-color: rgba(255,255,255,0.9);
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-family: Arial, sans-serif;
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+">
+    <div style="margin-bottom: 8px; font-weight: bold;">Explore Options</div>
+
+    <div style="position: relative; margin-bottom:5px;">
+        <a href="https://100k-before-uni.beehiiv.com/" target="_blank" style="color:#0077cc; text-decoration:none;">📬 My Journey Newsletter</a>
+    </div>
+
+    <div style="position: relative; margin-bottom:5px;">
+        <a href="https://buy.stripe.com/5kQdRbahjdAZ2M2e6Zf3a01" target="_blank" style="color:#888; text-decoration:none;">🥈 Silver Sponsor (£10/year)</a>
+        <span style="
+            margin-left: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #555;
+        ">?</span>
+        <div class="tooltip" style="
+            display: none;
+            position: absolute;
+            top: 20px;
+            left: 0;
+            width: 200px;
+            background-color: rgba(0,0,0,0.8);
+            color: #fff;
+            padding: 8px;
+            border-radius: 5px;
+            font-size: 12px;
+            z-index: 1001;
+        ">
+            Claim a random floating billboard for £10. Valid for 1 year. Your brand floats in the 3D space!
+        </div>
+    </div>
+
+    <div style="position: relative;">
+        <a href="https://buy.stripe.com/3cI9AVgFH2Wlaeu1kdf3a00" target="_blank" style="color:#daa520; text-decoration:none;">🥇 Gold Sponsor (£100/year)</a>
+        <span style="
+            margin-left: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #555;
+        ">?</span>
+        <div class="tooltip" style="
+            display: none;
+            position: absolute;
+            top: 20px;
+            left: 0;
+            width: 200px;
+            background-color: rgba(0,0,0,0.8);
+            color: #fff;
+            padding: 8px;
+            border-radius: 5px;
+            font-size: 12px;
+            z-index: 1001;
+        ">
+            Claim one of the two main side billboards for £100. Valid for 1 year. Premium visibility for your brand!
+        </div>
+    </div>
+</div>
+
+<script>
+    document.querySelectorAll('#corner-menu span').forEach(span => {
+        const tooltip = span.nextElementSibling;
+        span.addEventListener('mouseenter', () => tooltip.style.display = 'block');
+        span.addEventListener('mouseleave', () => tooltip.style.display = 'none');
+    });
+
+</script>
 <script type="module" src="./main.js"></script>
 </body>
 </html>
