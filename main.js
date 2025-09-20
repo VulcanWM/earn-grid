@@ -66,10 +66,10 @@ scene.add(ground);
 
 // Sample earnings data
 const earnData = [
-    { project: "Project A", amount: 100, color: "#ff6347" },
-    { project: "Project B", amount: 250, color: "#1e90ff" },
-    { project: "Project C", amount: 150, color: "#32cd32" },
-    { project: "Project D", amount: 80, color: "#ffa500" }
+    { project: "Earn Grid", amount: 10, color: "#ff6347" },
+    // { project: "Project B", amount: 250, color: "#1e90ff" },
+    // { project: "Project C", amount: 150, color: "#32cd32" },
+    // { project: "Project D", amount: 80, color: "#ffa500" }
 ];
 
 const targetAmount = 100000; // £100k goal
@@ -120,7 +120,30 @@ function addBillboard(x, y, z, text) {
 }
 
 addBillboard(-200, 50, 0, "Your business could be here");
-addBillboard(200, 50, 0, "Your business could be here");
+
+// Replace with image billboard
+function addImageBillboard(x, y, z, imageUrl) {
+    const loader = new THREE.TextureLoader();
+    loader.load(imageUrl, (texture) => {
+        const aspect = texture.image.width / texture.image.height;
+        const height = 100; // keep same height as old billboard
+        const width = height * aspect;
+
+        const geometry = new THREE.PlaneGeometry(width, height);
+        const material = new THREE.MeshBasicMaterial({
+            map: texture,
+            side: THREE.DoubleSide
+        });
+
+        const billboard = new THREE.Mesh(geometry, material);
+        billboard.position.set(x, y, z);
+        scene.add(billboard);
+    });
+}
+
+// Example image billboard on the right
+addImageBillboard(200, 50, 0, "assets/worldguessr.png");
+
 
 // Sky Billboard for Earnings Progress
 const progressCanvas = document.createElement('canvas');
